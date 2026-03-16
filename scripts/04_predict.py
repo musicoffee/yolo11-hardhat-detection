@@ -1,15 +1,21 @@
+import os
 from ultralytics import YOLO
 
-def main():
-    model = YOLO(r"F:\yolo\runs\hardhat_yolo11n\weights\best.pt")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    # 这里 source 可以换成图片、文件夹、视频
-    results = model.predict(
-        source=r"F:\yolo\data\images\test",   # 先测测试集图片
+MODEL_PATH = os.path.join(BASE_DIR, "runs", "hardhat_yolo11n", "weights", "best.pt")
+SOURCE_DIR = os.path.join(BASE_DIR, "data", "images", "test")
+RUNS_DIR = os.path.join(BASE_DIR, "runs")
+
+def main():
+    model = YOLO(MODEL_PATH)
+
+    model.predict(
+        source=SOURCE_DIR,
         imgsz=640,
         conf=0.25,
         save=True,
-        project=r"F:\yolo\runs",
+        project=RUNS_DIR,
         name="hardhat_predict"
     )
 

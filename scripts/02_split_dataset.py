@@ -3,11 +3,13 @@ import random
 import shutil
 
 # ===== 原始路径 =====
-IMAGE_DIR = r"F:\yolo\data\images"
-LABEL_DIR = r"F:\yolo\data\labels_all"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IMAGE_DIR = os.path.join(BASE_DIR, "data", "images")
+LABEL_DIR = os.path.join(BASE_DIR, "data", "labels_all")
+
 
 # ===== 输出根目录 =====
-OUT_ROOT = r"F:\yolo\data"
+OUT_ROOT = os.path.join(BASE_DIR, "data")
 
 # ===== 划分比例 =====
 TRAIN_RATIO = 0.7

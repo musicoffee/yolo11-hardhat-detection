@@ -2,8 +2,9 @@ import os
 import xml.etree.ElementTree as ET
 
 # ===== 路径 =====
-XML_DIR = r"F:\yolo\data\annotations"
-OUTPUT_LABEL_DIR = r"F:\yolo\data\labels_all"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+XML_DIR = os.path.join(BASE_DIR, "data", "annotations")
+OUTPUT_LABEL_DIR = os.path.join(BASE_DIR, "data", "labels_all")
 
 os.makedirs(OUTPUT_LABEL_DIR, exist_ok=True)
 

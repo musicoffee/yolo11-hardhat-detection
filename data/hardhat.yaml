@@ -1,4 +1,4 @@
-path: F:/yolo/data
+path: ./data
 train: images/train
 val: images/val
 test: images/test

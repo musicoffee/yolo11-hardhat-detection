@@ -8,8 +8,10 @@ from ultralytics import YOLO
 # =========================
 # 基础配置
 # =========================
-MODEL_PATH = r"F:\yolo\runs\hardhat_yolo11n\weights\best.pt"
-OUTPUT_DIR = r"F:\yolo\demo_outputs"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "runs", "hardhat_yolo11n", "weights", "best.pt")
+OUTPUT_DIR = os.path.join(BASE_DIR, "demo_outputs")
+
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 st.set_page_config(page_title="安全帽检测系统", layout="wide")
