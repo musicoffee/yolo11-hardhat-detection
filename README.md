@@ -56,14 +56,15 @@
 - `ymax`
 
 为了适配 YOLO11 训练，本项目将其转换为 YOLO 所需格式：
-
+```text
 class_id x_center y_center width height
+```
 
 其中：
 
-x_center 和 y_center 表示目标框中心点坐标
+- `x_center`和 - `y_center` 表示目标框中心点坐标
 
-width 和 height 表示目标框宽高
+- `width` 和 - `height` 表示目标框宽高
 
 所有坐标均根据图像宽高进行归一化处理
 
@@ -85,9 +86,9 @@ width 和 height 表示目标框宽高
 
 训练类别为：
 
-helmet
+- `helmet`
 
-head
+- `head`
 
 通过训练，使模型能够识别施工场景中的安全帽和头部目标。
 
@@ -99,9 +100,9 @@ head
 
 对视频逐帧进行检测
 
-可视化显示 helmet 和 head
+可视化显示 - `helmet` 和 - `head`
 
-根据空间匹配规则推断 no_helmet
+根据空间匹配规则推断 - `no_helmet`
 
 因此，本项目不仅完成了模型训练，还实现了一个可交互的视频检测演示系统。
 
