@@ -1,0 +1,8 @@
+path: F:/yolo/data
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: helmet
+  1: head
