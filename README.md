@@ -62,9 +62,9 @@ class_id x_center y_center width height
 
 其中：
 
-- `x_center`和  -`y_center` 表示目标框中心点坐标
+ `x_center`和  `y_center` 表示目标框中心点坐标
 
-- `width` 和 - `height` 表示目标框宽高
+ `width` 和  `height` 表示目标框宽高
 
 所有坐标均根据图像宽高进行归一化处理
 
@@ -100,9 +100,9 @@ class_id x_center y_center width height
 
 对视频逐帧进行检测
 
-可视化显示 - `helmet` 和 - `head`
+可视化显示 `helmet` 和  `head`
 
-根据空间匹配规则推断 - `no_helmet`
+根据空间匹配规则推断  `no_helmet`
 
 因此，本项目不仅完成了模型训练，还实现了一个可交互的视频检测演示系统。
 
@@ -110,40 +110,38 @@ class_id x_center y_center width height
 
 本项目训练得到的模型在数据集上取得了较好的检测效果。
 
-关键指标
+### 关键指标
 
-最优轮次（Best epoch）：86
+| 指标 | 数值 |
+|------|------|
+| Best epoch | 86 |
+| Precision | 0.9338 |
+| Recall | 0.9027 |
+| mAP@0.5 | 0.9520 |
+| mAP@0.5:0.95 | 0.6396 |
+### 最优轮次下的损失值
 
-Precision：0.9338
+| 损失项 | 数值 |
+|--------|------|
+| train box loss | 1.1111 |
+| train cls loss | 0.5377 |
+| train dfl loss | 1.0205 |
+| val box loss | 1.2059 |
+| val cls loss | 0.5103 |
+| val dfl loss | 1.1021 |
 
-Recall：0.9027
+从结果可以看出，模型在 `helmet` 和 `head` 两类目标上的检测性能较好，整体训练过程较稳定，具有较好的实用展示价值。
 
-mAP@0.5：0.9520
+## 训练结果可视化
 
-mAP@0.5:0.95：0.6396
+### 整体训练曲线
+![训练结果曲线](assets/results.png)
 
-最优轮次下的损失值
+### Precision-Recall 曲线
+![PR曲线](assets/BoxPR_curve.png)
 
-train box loss：1.1111
-
-train cls loss：0.5377
-
-train dfl loss：1.0205
-
-val box loss：1.2059
-
-val cls loss：0.5103
-
-val dfl loss：1.1021
-
-从结果可以看出，模型在 helmet 和 head 两类目标上的检测性能较好，整体训练过程较稳定，具有较好的实用展示价值。
-
-训练结果可视化
-整体训练曲线
-
-Precision-Recall 曲线
-
-归一化混淆矩阵
+### 归一化混淆矩阵
+![归一化混淆矩阵](assets/confusion_matrix_normalized.png)
 
 ## 项目结构
 ```text
