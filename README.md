@@ -41,7 +41,8 @@
 
 其中 `person` 类别被去除，以避免任务过于接近通用目标检测，突出本项目在施工安全场景中的应用目标。
 
-> 说明：由于数据集体积和版权原因，本仓库**不直接提供原始数据集文件**，请自行下载后放入对应目录。
+> 说明：本项目使用 Kaggle 上的公开安全帽检测数据集。由于数据集体积较大，本仓库不直接提供完整原始数据文件，请先下载数据集后放入对应目录。  
+> 数据集下载链接：[[点击这里下载数据集](https://www.kaggle.com/datasets/andrewmvd/hard-hat-detection)]
 
 ## 方法流程
 
@@ -143,7 +144,8 @@ Precision-Recall 曲线
 
 归一化混淆矩阵
 
-项目结构
+## 项目结构
+```text
 .
 ├── app.py
 ├── README.md
@@ -160,22 +162,35 @@ Precision-Recall 曲线
 │   ├── 02_split_dataset.py
 │   ├── 03_train.py
 │   └── 04_predict.py
-环境安装
+```
+##环境安装
 
 请先安装依赖：
-
+```bash
 pip install -r requirements.txt
-使用方法
-1. XML 标注转换为 YOLO 格式
+```
+## 使用方法
+
+### 1. XML 标注转换为 YOLO 格式
+ ```bash
 python scripts/01_xml_to_yolo.py
-2. 划分数据集
+```
+###3. 划分数据集
+ ```bash
 python scripts/02_split_dataset.py
-3. 训练模型
+```
+###4. 训练模型
+ ```bash
 python scripts/03_train.py
-4. 运行预测脚本
+```
+###5. 运行预测脚本
+ ```bash
 python scripts/04_predict.py
-5. 启动 Streamlit 前端页面
+```
+###6. 启动 Streamlit 前端页面
+ ```bash
 streamlit run app.py
+```
 前端展示功能
 
 Streamlit 页面支持以下功能：
