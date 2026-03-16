@@ -62,7 +62,7 @@ class_id x_center y_center width height
 
 其中：
 
-- `x_center`和 - `y_center` 表示目标框中心点坐标
+- `x_center`和  -`y_center` 表示目标框中心点坐标
 
 - `width` 和 - `height` 表示目标框宽高
 
