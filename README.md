@@ -122,25 +122,11 @@ class_id x_center y_center width height
 
 本项目训练得到的模型在数据集上取得了较好的检测效果。
 
-### 关键指标
+## 性能指標
 
-| 指标 | 数值 |
-|------|------|
-| Best epoch | 86 |
-| Precision | 0.9338 |
-| Recall | 0.9027 |
-| mAP@0.5 | 0.9520 |
-| mAP@0.5:0.95 | 0.6396 |
-### 最优轮次下的损失值
-
-| 损失项 | 数值 |
-|--------|------|
-| train box loss | 1.1111 |
-| train cls loss | 0.5377 |
-| train dfl loss | 1.0205 |
-| val box loss | 1.2059 |
-| val cls loss | 0.5103 |
-| val dfl loss | 1.1021 |
+| 模型 (Model) | 尺寸 (Size) | mAP50 | mAP50-95 | 精確度 (Precision) | 召回率 (Recall) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **YOLO11n-hardhat** | 640 | 0.948 | 0.638 | 0.932 | 0.900 |
 
 从结果可以看出，模型在 `helmet` 和 `head` 两类目标上的检测性能较好，整体训练过程较稳定，具有较好的实用展示价值。
 
