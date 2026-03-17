@@ -122,9 +122,9 @@ class_id x_center y_center width height
 
 本项目训练得到的模型在数据集上取得了较好的检测效果。
 
-## 性能指標
+## 性能指标
 
-| 模型 (Model) | 尺寸 (Size) | mAP50 | mAP50-95 | 精確度 (Precision) | 召回率 (Recall) |
+| 模型 (Model) | 尺寸 (Size) | mAP50 | mAP50-95 | 精确度 (Precision) | 召回率 (Recall) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **YOLO11n-hardhat** | 640 | 0.948 | 0.638 | 0.932 | 0.900 |
 
