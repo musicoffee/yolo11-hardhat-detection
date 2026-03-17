@@ -174,7 +174,6 @@ class_id x_center y_center width height
 │   ├── 03_train.py
 │   └── 04_predict.py
 ```
-<<<<<<< HEAD
 ## 环境安装
 
 
@@ -188,19 +187,19 @@ pip install -r requirements.txt
  ```bash
 python scripts/01_xml_to_yolo.py
 ```
-###3. 划分数据集
+### 3. 划分数据集
  ```bash
 python scripts/02_split_dataset.py
 ```
-###4. 训练模型
+### 4. 训练模型
  ```bash
 python scripts/03_train.py
 ```
-###5. 运行预测脚本
+### 5. 运行预测脚本
  ```bash
 python scripts/04_predict.py
 ```
-###6. 启动 Streamlit 前端页面
+### 6. 启动 Streamlit 前端页面
  ```bash
 streamlit run app.py
 ```
