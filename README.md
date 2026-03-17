@@ -176,9 +176,7 @@ class_id x_center y_center width height
 ```
 <<<<<<< HEAD
 ## 环境安装
-=======
-##环境安装
->>>>>>> 9c566cdbc16f211c1cc01319c40e907887f30e4c
+
 
 请先安装依赖：
 ```bash
