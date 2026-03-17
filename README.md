@@ -41,7 +41,8 @@
 
 其中 `person` 类别被去除，以避免任务过于接近通用目标检测，突出本项目在施工安全场景中的应用目标。
 
-> 说明：由于数据集体积和版权原因，本仓库**不直接提供原始数据集文件**，请自行下载后放入对应目录。
+> 说明：本项目使用 Kaggle 上的公开安全帽检测数据集。由于数据集体积较大，本仓库不直接提供完整原始数据文件，请先下载数据集后放入对应目录。  
+> 数据集下载链接：[[点击这里下载数据集](https://www.kaggle.com/datasets/andrewmvd/hard-hat-detection)]
 
 ## 方法流程
 
@@ -55,18 +56,19 @@
 - `ymax`
 
 为了适配 YOLO11 训练，本项目将其转换为 YOLO 所需格式：
-
+```text
 class_id x_center y_center width height
+```
 
 其中：
 
-x_center 和 y_center 表示目标框中心点坐标
+ `x_center`和  `y_center` 表示目标框中心点坐标
 
-width 和 height 表示目标框宽高
+ `width` 和  `height` 表示目标框宽高
 
 所有坐标均根据图像宽高进行归一化处理
 
-2. 数据集划分
+### 2. 数据集划分
 
 完成标注格式转换后，对数据集进行划分：
 
@@ -78,19 +80,19 @@ width 和 height 表示目标框宽高
 
 用于后续模型训练、验证与测试。
 
-3. 模型训练
+### 3. 模型训练
 
 本项目使用 YOLO11 进行目标检测训练。
 
 训练类别为：
 
-helmet
+- `helmet`
 
-head
+- `head`
 
 通过训练，使模型能够识别施工场景中的安全帽和头部目标。
 
-4. 视频检测展示
+### 4. 视频检测展示
 
 本项目使用 Streamlit 搭建了一个前端展示页面，支持以下功能：
 
@@ -98,52 +100,63 @@ head
 
 对视频逐帧进行检测
 
-可视化显示 helmet 和 head
+可视化显示 `helmet` 和  `head`
 
-根据空间匹配规则推断 no_helmet
+根据空间匹配规则推断  `no_helmet`
 
 因此，本项目不仅完成了模型训练，还实现了一个可交互的视频检测演示系统。
 
 模型训练结果
+## 网页展示界面
+
+本项目使用 Streamlit 搭建了一个可交互的网页检测界面，主要支持以下功能：
+
+- 上传视频文件
+- 调节检测参数
+- 实时展示检测过程
+- 输出并下载检测后视频
+- 显示当前帧统计与累计检测统计
+
+![网页展示界面](assets/web_demo.png)
+![网页展示界面](assets/web_demo2.png)
 
 本项目训练得到的模型在数据集上取得了较好的检测效果。
 
-关键指标
+### 关键指标
 
-最优轮次（Best epoch）：86
+| 指标 | 数值 |
+|------|------|
+| Best epoch | 86 |
+| Precision | 0.9338 |
+| Recall | 0.9027 |
+| mAP@0.5 | 0.9520 |
+| mAP@0.5:0.95 | 0.6396 |
+### 最优轮次下的损失值
 
-Precision：0.9338
+| 损失项 | 数值 |
+|--------|------|
+| train box loss | 1.1111 |
+| train cls loss | 0.5377 |
+| train dfl loss | 1.0205 |
+| val box loss | 1.2059 |
+| val cls loss | 0.5103 |
+| val dfl loss | 1.1021 |
 
-Recall：0.9027
+从结果可以看出，模型在 `helmet` 和 `head` 两类目标上的检测性能较好，整体训练过程较稳定，具有较好的实用展示价值。
 
-mAP@0.5：0.9520
+## 训练结果可视化
 
-mAP@0.5:0.95：0.6396
+### 整体训练曲线
+![训练结果曲线](assets/results.png)
 
-最优轮次下的损失值
+### Precision-Recall 曲线
+![PR曲线](assets/BoxPR_curve.png)
 
-train box loss：1.1111
+### 归一化混淆矩阵
+![归一化混淆矩阵](assets/confusion_matrix_normalized.png)
 
-train cls loss：0.5377
-
-train dfl loss：1.0205
-
-val box loss：1.2059
-
-val cls loss：0.5103
-
-val dfl loss：1.1021
-
-从结果可以看出，模型在 helmet 和 head 两类目标上的检测性能较好，整体训练过程较稳定，具有较好的实用展示价值。
-
-训练结果可视化
-整体训练曲线
-
-Precision-Recall 曲线
-
-归一化混淆矩阵
-
-项目结构
+## 项目结构
+```text
 .
 ├── app.py
 ├── README.md
@@ -160,22 +173,35 @@ Precision-Recall 曲线
 │   ├── 02_split_dataset.py
 │   ├── 03_train.py
 │   └── 04_predict.py
-环境安装
+```
+## 环境安装
 
 请先安装依赖：
-
+```bash
 pip install -r requirements.txt
-使用方法
-1. XML 标注转换为 YOLO 格式
+```
+## 使用方法
+
+### 1. XML 标注转换为 YOLO 格式
+ ```bash
 python scripts/01_xml_to_yolo.py
-2. 划分数据集
+```
+###3. 划分数据集
+ ```bash
 python scripts/02_split_dataset.py
-3. 训练模型
+```
+###4. 训练模型
+ ```bash
 python scripts/03_train.py
-4. 运行预测脚本
+```
+###5. 运行预测脚本
+ ```bash
 python scripts/04_predict.py
-5. 启动 Streamlit 前端页面
+```
+###6. 启动 Streamlit 前端页面
+ ```bash
 streamlit run app.py
+```
 前端展示功能
 
 Streamlit 页面支持以下功能：

@@ -1,28 +1,33 @@
 import os
 import cv2
 import tempfile
-import numpy as np
 import streamlit as st
 from ultralytics import YOLO
 
 # =========================
-# 基础配置
+# 路径配置
 # =========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "runs", "hardhat_yolo11n", "weights", "best.pt")
+MODEL_PATH = os.path.join(BASE_DIR, "runs", "hardhat_yolo11n2", "weights", "best.pt")
 OUTPUT_DIR = os.path.join(BASE_DIR, "demo_outputs")
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+print("当前加载模型路径：", MODEL_PATH)
+
+# =========================
+# 页面配置
+# =========================
 st.set_page_config(page_title="安全帽检测系统", layout="wide")
-st.title("基于 YOLO11 的安全帽佩戴检测系统")
+st.title("基于 YOLO11 的安全帽检测系统")
+st.caption("支持视频上传、目标检测、结果可视化与检测后视频导出")
 
 # =========================
 # 工具函数
 # =========================
 def box_iou(box1, box2):
     """
-    box: [x1, y1, x2, y2]
+    box = [x1, y1, x2, y2]
     """
     x1 = max(box1[0], box2[0])
     y1 = max(box1[1], box2[1])
@@ -40,15 +45,18 @@ def box_iou(box1, box2):
     return inter / union
 
 
-def head_has_helmet(head_box, helmet_boxes, iou_thresh=0.10):
+def head_has_helmet(head_box, helmet_boxes, iou_thresh=0.08):
     """
-    判断 head 附近是否有 helmet
+    根据 head 与 helmet 的空间关系判断是否佩戴安全帽
+    head_box: [x1, y1, x2, y2]
+    helmet_boxes: [[x1, y1, x2, y2], ...]
     """
     for hb in helmet_boxes:
+        # IoU 判断
         if box_iou(head_box, hb) >= iou_thresh:
             return True
 
-        # 再加一个中心点包含的简单规则，增强鲁棒性
+        # helmet 中心点是否落在 head 框内
         hx1, hy1, hx2, hy2 = hb
         cx = (hx1 + hx2) / 2
         cy = (hy1 + hy2) / 2
@@ -63,8 +71,10 @@ def process_video(
     input_video_path,
     output_video_path,
     model,
-    conf=0.25,
-    iou=0.45
+    conf=0.35,
+    iou=0.30,
+    min_helmet_area=350,
+    min_head_area=500
 ):
     cap = cv2.VideoCapture(input_video_path)
     if not cap.isOpened():
@@ -77,6 +87,7 @@ def process_video(
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+    # 写出视频
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     writer = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
 
@@ -84,6 +95,10 @@ def process_video(
     total_heads = 0
     total_helmets = 0
     total_no_helmet = 0
+
+    last_frame_heads = 0
+    last_frame_helmets = 0
+    last_frame_no_helmet = 0
 
     frame_placeholder = st.empty()
     progress_bar = st.progress(0)
@@ -101,8 +116,8 @@ def process_video(
 
         results = model.predict(frame, conf=conf, iou=iou, verbose=False)
         result = results[0]
-
         boxes = result.boxes
+
         helmet_boxes = []
         head_boxes = []
 
@@ -112,17 +127,30 @@ def process_video(
                 score = float(b.conf[0].item())
                 x1, y1, x2, y2 = map(int, b.xyxy[0].tolist())
 
+                box_w = x2 - x1
+                box_h = y2 - y1
+                box_area = box_w * box_h
+
                 class_name = model.names[cls_id].lower()
 
+                # 过滤小框，减少远景密集场景误检
                 if class_name == "helmet":
+                    if box_area < min_helmet_area:
+                        continue
                     helmet_boxes.append([x1, y1, x2, y2, score])
+
                 elif class_name == "head":
+                    if box_area < min_head_area:
+                        continue
                     head_boxes.append([x1, y1, x2, y2, score])
 
         total_heads += len(head_boxes)
         total_helmets += len(helmet_boxes)
 
         helmet_xy = [b[:4] for b in helmet_boxes]
+
+        # 当前帧统计
+        frame_no_helmet = 0
 
         # 先画 helmet
         for x1, y1, x2, y2, score in helmet_boxes:
@@ -132,13 +160,12 @@ def process_video(
                 f"helmet {score:.2f}",
                 (x1, max(y1 - 8, 20)),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
+                0.55,
                 (0, 255, 0),
                 2
             )
 
-        # 再画 head，并判断 no_helmet
-        frame_no_helmet = 0
+        # 再画 head / no_helmet
         for x1, y1, x2, y2, score in head_boxes:
             has_helmet = head_has_helmet([x1, y1, x2, y2], helmet_xy, iou_thresh=0.08)
 
@@ -156,24 +183,27 @@ def process_video(
                 label,
                 (x1, max(y1 - 8, 20)),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
+                0.55,
                 color,
                 2
             )
 
         total_no_helmet += frame_no_helmet
 
-        # 左上角统计信息
-        cv2.putText(frame, f"Heads: {len(head_boxes)}", (20, 35),
+        last_frame_heads = len(head_boxes)
+        last_frame_helmets = len(helmet_boxes)
+        last_frame_no_helmet = frame_no_helmet
+
+        # 左上角显示当前帧统计
+        cv2.putText(frame, f"Current Heads: {last_frame_heads}", (20, 35),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 180, 0), 2)
-        cv2.putText(frame, f"Helmets: {len(helmet_boxes)}", (20, 70),
+        cv2.putText(frame, f"Current Helmets: {last_frame_helmets}", (20, 70),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-        cv2.putText(frame, f"No Helmet: {frame_no_helmet}", (20, 105),
+        cv2.putText(frame, f"Current No Helmet: {last_frame_no_helmet}", (20, 105),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
         writer.write(frame)
 
-        # 页面实时显示一帧
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame_placeholder.image(rgb_frame, channels="RGB", caption="检测中...")
 
@@ -186,16 +216,23 @@ def process_video(
         "total_frames": total_frames,
         "total_heads": total_heads,
         "total_helmets": total_helmets,
-        "total_no_helmet": total_no_helmet
+        "total_no_helmet": total_no_helmet,
+        "last_frame_heads": last_frame_heads,
+        "last_frame_helmets": last_frame_helmets,
+        "last_frame_no_helmet": last_frame_no_helmet
     }
 
 
 # =========================
-# 页面侧边栏
+# 左侧参数区
 # =========================
 st.sidebar.header("参数设置")
-conf_threshold = st.sidebar.slider("置信度阈值", 0.05, 0.95, 0.25, 0.05)
-iou_threshold = st.sidebar.slider("NMS IOU 阈值", 0.10, 0.90, 0.45, 0.05)
+
+conf_threshold = st.sidebar.slider("置信度阈值", 0.05, 0.95, 0.35, 0.05)
+iou_threshold = st.sidebar.slider("NMS IOU 阈值", 0.10, 0.90, 0.30, 0.05)
+
+min_helmet_area = st.sidebar.slider("helmet 最小框面积", 100, 3000, 350, 50)
+min_head_area = st.sidebar.slider("head 最小框面积", 100, 4000, 500, 50)
 
 uploaded_file = st.file_uploader("上传一个视频文件", type=["mp4", "avi", "mov", "mkv"])
 
@@ -221,20 +258,30 @@ if uploaded_file is not None:
                     output_video_path=output_video_path,
                     model=model,
                     conf=conf_threshold,
-                    iou=iou_threshold
+                    iou=iou_threshold,
+                    min_helmet_area=min_helmet_area,
+                    min_head_area=min_head_area
                 )
 
             st.success("检测完成！")
 
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("总帧数", stats["total_frames"])
-            col2.metric("检测到 head 总数", stats["total_heads"])
-            col3.metric("检测到 helmet 总数", stats["total_helmets"])
-            col4.metric("未佩戴安全帽累计次数", stats["total_no_helmet"])
+            st.subheader("最终一帧统计")
+            col1, col2, col3 = st.columns(3)
+            col1.metric("当前帧 head 数量", stats["last_frame_heads"])
+            col2.metric("当前帧 helmet 数量", stats["last_frame_helmets"])
+            col3.metric("当前帧 no_helmet 数量", stats["last_frame_no_helmet"])
+
+            st.subheader("全视频累计统计")
+            col4, col5, col6, col7 = st.columns(4)
+            col4.metric("总帧数", stats["total_frames"])
+            col5.metric("累计 head 检测次数", stats["total_heads"])
+            col6.metric("累计 helmet 检测次数", stats["total_helmets"])
+            col7.metric("累计 no_helmet 判定次数", stats["total_no_helmet"])
+
+            st.caption("说明：以上累计统计为视频逐帧检测累计次数，并非唯一目标人数统计。")
 
             st.subheader("检测后视频")
-            with open(output_video_path, "rb") as f:
-                st.video(f.read())
+            st.video(output_video_path)
 
             with open(output_video_path, "rb") as f:
                 st.download_button(

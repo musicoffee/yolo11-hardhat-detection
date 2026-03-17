@@ -2,11 +2,12 @@ import os
 import random
 import shutil
 
-# ===== 原始路径 =====
+# ===== 项目根目录 =====
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# ===== 原始路径 =====
 IMAGE_DIR = os.path.join(BASE_DIR, "data", "images")
 LABEL_DIR = os.path.join(BASE_DIR, "data", "labels_all")
-
 
 # ===== 输出根目录 =====
 OUT_ROOT = os.path.join(BASE_DIR, "data")
@@ -18,13 +19,26 @@ TEST_RATIO = 0.1
 
 random.seed(42)
 
-def ensure_dirs():
+def reset_split_dirs():
     for split in ["train", "val", "test"]:
-        os.makedirs(os.path.join(OUT_ROOT, "images", split), exist_ok=True)
-        os.makedirs(os.path.join(OUT_ROOT, "labels", split), exist_ok=True)
+        img_split_dir = os.path.join(OUT_ROOT, "images", split)
+        label_split_dir = os.path.join(OUT_ROOT, "labels", split)
+
+        if os.path.exists(img_split_dir):
+            shutil.rmtree(img_split_dir)
+        if os.path.exists(label_split_dir):
+            shutil.rmtree(label_split_dir)
+
+        os.makedirs(img_split_dir, exist_ok=True)
+        os.makedirs(label_split_dir, exist_ok=True)
 
 def main():
-    ensure_dirs()
+    print("BASE_DIR =", BASE_DIR)
+    print("IMAGE_DIR =", IMAGE_DIR)
+    print("LABEL_DIR =", LABEL_DIR)
+    print("OUT_ROOT =", OUT_ROOT)
+
+    reset_split_dirs()
 
     image_files = [
         f for f in os.listdir(IMAGE_DIR)
@@ -33,7 +47,7 @@ def main():
 
     print(f"找到图片数量: {len(image_files)}")
 
-    # 只保留有对应标签的图片
+    # 只保留有标签文件的图片
     valid_images = []
     for img_name in image_files:
         txt_name = os.path.splitext(img_name)[0] + ".txt"

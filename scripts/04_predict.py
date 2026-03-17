@@ -3,7 +3,7 @@ from ultralytics import YOLO
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-MODEL_PATH = os.path.join(BASE_DIR, "runs", "hardhat_yolo11n", "weights", "best.pt")
+MODEL_PATH = os.path.join(BASE_DIR, "runs", "hardhat_yolo11n2", "weights", "best.pt")
 SOURCE_DIR = os.path.join(BASE_DIR, "data", "images", "test")
 RUNS_DIR = os.path.join(BASE_DIR, "runs")
 
